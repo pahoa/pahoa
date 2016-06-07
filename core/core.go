@@ -34,12 +34,11 @@ func (b *Board) IsTransitionValid(from, to string) bool {
 	return valid
 }
 
-type Action func()
-
 type Card struct {
 	ExternalID   string `json:"external_id"`
 	PreviousStep string `json:"previous_step"`
 	CurrentStep  string `json:"current_step"`
+	Status       string `json:"status"`
 }
 
 type AddCardOptions struct {
@@ -73,12 +72,14 @@ func ListCards(m *Model) []*Card {
 }
 
 type CardActionsRunner struct {
+	board *Board
 	model *Model
 	cards chan *Card
 }
 
-func NewCardActionsRunner(model *Model) *CardActionsRunner {
+func NewCardActionsRunner(board *Board, model *Model) *CardActionsRunner {
 	return &CardActionsRunner{
+		board: board,
 		model: model,
 		cards: make(chan *Card, 100),
 	}
@@ -95,5 +96,20 @@ func (c *CardActionsRunner) Add(card *Card) {
 func (c *CardActionsRunner) Loop() {
 	for card := range c.cards {
 		log.Printf("Processing actions of card: %s", card.ExternalID)
+
+		card.Status = "waiting"
+
+		from := card.PreviousStep
+		to := card.CurrentStep
+
+		log.Printf("Moving from %s to %s", from, to)
+		actions := c.board.transitions[Transition{from, to}]
+		if actions == nil {
+			continue
+		}
+
+		for _, action := range actions {
+			action()
+		}
 	}
 }

@@ -9,10 +9,6 @@ import (
 	"github.com/pahoa/pahoa/core"
 )
 
-var actions map[string]core.Action = map[string]core.Action{
-	"MergeRequestToDevelop": func() {},
-}
-
 type Server struct {
 	mux    *mux.Router
 	board  *core.Board
@@ -28,13 +24,13 @@ func NewServer() *Server {
 	board.AddTransition("", "todo")
 	board.AddTransition("todo", "in-development")
 	board.AddTransition("in-development", "waiting-for-code-review",
-		actions["MergeRequestToDevelop"])
+		core.CardAction(core.StatusMergeRequestToDevelop))
 
 	server := &Server{
 		mux:    serveMux,
 		board:  board,
 		model:  model,
-		runner: core.NewCardActionsRunner(model),
+		runner: core.NewCardActionsRunner(board, model),
 	}
 
 	server.runner.Start()
