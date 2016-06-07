@@ -35,6 +35,11 @@ func listCmdRun(cmd *cobra.Command, args []string) error {
 		log.Fatal("Unable to decode list of cards")
 	}
 
+	if len(cards) == 0 {
+		fmt.Println("Not found any cards")
+		return nil
+	}
+
 	for _, card := range cards {
 		fmt.Printf("- Card: %s - Step: %s\n", card.ExternalID, card.CurrentStep)
 	}
