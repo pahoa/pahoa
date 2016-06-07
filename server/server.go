@@ -14,13 +14,15 @@ var actions map[string]core.Action = map[string]core.Action{
 }
 
 type Server struct {
-	mux   *mux.Router
-	board *core.Board
-	model *core.Model
+	mux    *mux.Router
+	board  *core.Board
+	model  *core.Model
+	runner *core.CardActionsRunner
 }
 
 func NewServer() *Server {
 	serveMux := mux.NewRouter()
+	model := &core.Model{}
 
 	board := core.NewBoard()
 	board.AddTransition("", "todo")
@@ -29,10 +31,13 @@ func NewServer() *Server {
 		actions["MergeRequestToDevelop"])
 
 	server := &Server{
-		mux:   serveMux,
-		board: board,
-		model: &core.Model{},
+		mux:    serveMux,
+		board:  board,
+		model:  model,
+		runner: core.NewCardActionsRunner(model),
 	}
+
+	server.runner.Start()
 
 	// add card
 	serveMux.HandleFunc("/cards", server.addCardHandler).

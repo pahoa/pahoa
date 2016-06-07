@@ -2,6 +2,7 @@ package core
 
 import (
 	"errors"
+	"log"
 )
 
 var (
@@ -86,4 +87,30 @@ func AddCard(b *Board, m *Model, opts *AddCardOptions) (*Card, error) {
 
 func ListCards(m *Model) []*Card {
 	return m.ListCards()
+}
+
+type CardActionsRunner struct {
+	model *Model
+	cards chan *Card
+}
+
+func NewCardActionsRunner(model *Model) *CardActionsRunner {
+	return &CardActionsRunner{
+		model: model,
+		cards: make(chan *Card, 100),
+	}
+}
+
+func (c *CardActionsRunner) Start() {
+	go c.Loop()
+}
+
+func (c *CardActionsRunner) Add(card *Card) {
+	c.cards <- card
+}
+
+func (c *CardActionsRunner) Loop() {
+	for card := range c.cards {
+		log.Printf("Processing actions of card: %s", card.ExternalID)
+	}
 }
