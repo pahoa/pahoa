@@ -42,39 +42,11 @@ type Card struct {
 	CurrentStep  string `json:"current_step"`
 }
 
-type Model struct {
-	cards []*Card
-}
-
 type AddCardOptions struct {
 	ExternalID    string `json:"external_id"`
 	PreviousStep  string `json:"previous_step"`
 	CurrentStep   string `json:"current_step"`
 	BypassActions bool   `json:"bypass_actions"`
-}
-
-func (m *Model) AddCard(opts *AddCardOptions) (*Card, error) {
-	for _, card := range m.cards {
-		if card.ExternalID != opts.ExternalID {
-			continue
-		}
-
-		return nil, errors.New("Card already exists")
-	}
-
-	card := &Card{
-		ExternalID:   opts.ExternalID,
-		PreviousStep: opts.PreviousStep,
-		CurrentStep:  opts.CurrentStep,
-	}
-
-	m.cards = append(m.cards, card)
-
-	return card, nil
-}
-
-func (m *Model) ListCards() []*Card {
-	return m.cards
 }
 
 func AddCard(b *Board, m *Model, opts *AddCardOptions) (*Card, error) {
