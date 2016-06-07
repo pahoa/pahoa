@@ -49,12 +49,23 @@ type AddCardOptions struct {
 	BypassActions bool   `json:"bypass_actions"`
 }
 
-func AddCard(b *Board, m *Model, opts *AddCardOptions) (*Card, error) {
+func AddCard(b *Board, m *Model, r *CardActionsRunner, opts *AddCardOptions) (*Card, error) {
 	if !b.IsTransitionValid(opts.PreviousStep, opts.CurrentStep) {
 		return nil, InvalidCardMove
 	}
 
-	return m.AddCard(opts)
+	card, err := m.AddCard(opts)
+	if err != nil {
+		return nil, err
+	}
+
+	if opts.BypassActions {
+		return card, nil
+	}
+
+	r.Add(card)
+
+	return card, nil
 }
 
 func ListCards(m *Model) []*Card {

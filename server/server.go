@@ -63,7 +63,7 @@ func (s *Server) addCardHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	card, err := core.AddCard(s.board, s.model, &options)
+	card, err := core.AddCard(s.board, s.model, s.runner, &options)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
