@@ -17,11 +17,8 @@ func PivotalTrackerStartCard(config *viper.Viper, card *core.Card) error {
 
 	story, err := PivotalTrackerStoryDetail(token, card.ExternalID)
 	if err != nil {
-		log.Printf("Failed to retrieve story: %s", card.ExternalID)
 		return err
 	}
-
-	log.Printf("Received story %#v", story)
 
 	err = PivotalTrackerStoryUpdate(&PivotalTrackerStoryUpdateOptions{
 		Token:        token,
@@ -30,7 +27,6 @@ func PivotalTrackerStartCard(config *viper.Viper, card *core.Card) error {
 		CurrentState: PivotalTrackerStoryStateStarted,
 	})
 	if err != nil {
-		log.Printf("Failed to update story: %s, %#v", card.ExternalID, err)
 		return err
 	}
 
@@ -92,7 +88,6 @@ func PivotalTrackerStoryUpdate(opts *PivotalTrackerStoryUpdateOptions) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("data %s", data)
 
 	url := fmt.Sprintf("https://www.pivotaltracker.com/services/v5/projects/%d/stories/%d", opts.ProjectID, opts.StoryID)
 	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(data))
