@@ -7,8 +7,8 @@ import (
 
 func TestAddCard(t *testing.T) {
 	model := &Model{}
-
 	board := NewBoard()
+	runner := NewCardActionsRunner(board, model)
 
 	board.AddTransition("", "todo")
 	board.AddTransition("todo", "in-development")
@@ -19,7 +19,7 @@ func TestAddCard(t *testing.T) {
 		CurrentStep:  "todo",
 	}
 
-	actual, err := AddCard(board, model, &AddCardOptions{
+	actual, err := AddCard(board, model, runner, &AddCardOptions{
 		ExternalID:    expected.ExternalID,
 		PreviousStep:  expected.PreviousStep,
 		CurrentStep:   expected.CurrentStep,
@@ -37,8 +37,8 @@ func TestAddCard(t *testing.T) {
 
 func TestListCard(t *testing.T) {
 	m := &Model{}
-
 	b := NewBoard()
+	r := NewCardActionsRunner(b, m)
 
 	b.AddTransition("", "todo")
 
@@ -56,7 +56,7 @@ func TestListCard(t *testing.T) {
 	}
 
 	for _, card := range expectedCards {
-		_, err := AddCard(b, m, &AddCardOptions{
+		_, err := AddCard(b, m, r, &AddCardOptions{
 			ExternalID:    card.ExternalID,
 			PreviousStep:  card.PreviousStep,
 			CurrentStep:   card.CurrentStep,
