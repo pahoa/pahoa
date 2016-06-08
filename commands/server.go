@@ -8,6 +8,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/pahoa/pahoa/core"
+	"github.com/pahoa/pahoa/handlers"
 	"github.com/pahoa/pahoa/server"
 )
 
@@ -37,19 +39,36 @@ func init() {
 }
 
 func serverRun(cmd *cobra.Command, args []string) error {
-	v := viper.New()
+	config := viper.New()
 
-	v.AutomaticEnv()
-	v.SetEnvPrefix("pahoa")
+	config.AutomaticEnv()
+	config.SetEnvPrefix("pahoa")
 
-	v.SetConfigFile(serverOptions.cfgFile)
+	config.SetConfigFile(serverOptions.cfgFile)
 
-	if err := v.ReadInConfig(); err != nil {
+	if err := config.ReadInConfig(); err != nil {
 		return fmt.Errorf("Failed to load configuration file: %s",
 			serverOptions.cfgFile)
 	}
 
-	s := server.NewServer()
+	var board core.Board
+	if err := config.UnmarshalKey("board", &board); err != nil {
+		return fmt.Errorf("Failed to load board configuration")
+	}
+
+	model := &core.Model{}
+	runner := core.NewCardActionsRunner(&core.NewCardActionsRunnerOptions{
+		Board:    &board,
+		Model:    model,
+		Handlers: handlers.GetHandlers(),
+		Config:   config,
+	})
+
+	s := server.NewServer(&server.NewServerOptions{
+		Board:  &board,
+		Model:  model,
+		Runner: runner,
+	})
 
 	log.Printf("Starting server at: http://%s", serverOptions.address)
 	return http.ListenAndServe(serverOptions.address, s)

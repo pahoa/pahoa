@@ -6,7 +6,6 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/pahoa/pahoa/actions"
 	"github.com/pahoa/pahoa/core"
 )
 
@@ -17,21 +16,20 @@ type Server struct {
 	runner *core.CardActionsRunner
 }
 
-func NewServer() *Server {
-	serveMux := mux.NewRouter()
-	model := &core.Model{}
+type NewServerOptions struct {
+	Board  *core.Board
+	Model  *core.Model
+	Runner *core.CardActionsRunner
+}
 
-	board := core.NewBoard()
-	board.AddTransition("", "todo")
-	board.AddTransition("todo", "in-development")
-	board.AddTransition("in-development", "waiting-for-code-review",
-		actions.MergeRequestToDevelop)
+func NewServer(opts *NewServerOptions) *Server {
+	serveMux := mux.NewRouter()
 
 	server := &Server{
 		mux:    serveMux,
-		board:  board,
-		model:  model,
-		runner: core.NewCardActionsRunner(board, model),
+		board:  opts.Board,
+		model:  opts.Model,
+		runner: opts.Runner,
 	}
 
 	server.runner.Start()

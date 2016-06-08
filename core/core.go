@@ -4,7 +4,7 @@ import (
 	"errors"
 	"log"
 
-	"github.com/pahoa/pahoa/actions"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -17,31 +17,6 @@ const (
 	CardStatusOK         = "ok"
 	CardStatusFailed     = "failed"
 )
-
-type Transition struct {
-	From string
-	To   string
-}
-
-type Board struct {
-	transitions map[Transition][]actions.Action
-}
-
-func NewBoard() *Board {
-	return &Board{
-		transitions: make(map[Transition][]actions.Action),
-	}
-}
-
-func (b *Board) AddTransition(from, to string, transitionActions ...actions.Action) {
-	b.transitions[Transition{from, to}] = transitionActions
-}
-
-func (b *Board) IsTransitionValid(from, to string) bool {
-	_, valid := b.transitions[Transition{from, to}]
-
-	return valid
-}
 
 type Card struct {
 	ExternalID   string `json:"external_id"`
@@ -81,16 +56,27 @@ func ListCards(m *Model) []*Card {
 }
 
 type CardActionsRunner struct {
-	board *Board
-	model *Model
-	cards chan *Card
+	board    *Board
+	model    *Model
+	handlers map[Action]ActionHandler
+	config   *viper.Viper
+	cards    chan *Card
 }
 
-func NewCardActionsRunner(board *Board, model *Model) *CardActionsRunner {
+type NewCardActionsRunnerOptions struct {
+	Board    *Board
+	Model    *Model
+	Handlers map[Action]ActionHandler
+	Config   *viper.Viper
+}
+
+func NewCardActionsRunner(opts *NewCardActionsRunnerOptions) *CardActionsRunner {
 	return &CardActionsRunner{
-		board: board,
-		model: model,
-		cards: make(chan *Card, 100),
+		board:    opts.Board,
+		model:    opts.Model,
+		handlers: opts.Handlers,
+		config:   opts.Config,
+		cards:    make(chan *Card, 100),
 	}
 }
 
@@ -112,13 +98,21 @@ func (c *CardActionsRunner) Loop() {
 		to := card.CurrentStep
 
 		log.Printf("Moving from %s to %s", from, to)
-		transitionActions := c.board.transitions[Transition{from, to}]
-		if transitionActions == nil {
-			continue
-		}
+		transition := c.board.GetTransition(from, to)
 
-		for _, action := range transitionActions {
-			action()
+		for _, action := range transition.Actions {
+			handler := c.handlers[action]
+			if handler == nil {
+				log.Printf("Action [%s] has no handler", action)
+				card.Status = CardStatusFailed
+				break
+			}
+
+			if err := handler(c.config, card); err != nil {
+				log.Printf("Failed to execute action [%s]", action)
+				card.Status = CardStatusFailed
+				break
+			}
 		}
 	}
 }
