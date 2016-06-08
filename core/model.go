@@ -19,6 +19,7 @@ func (m *Model) AddCard(opts *AddCardOptions) (*Card, error) {
 		ExternalID:   opts.ExternalID,
 		PreviousStep: opts.PreviousStep,
 		CurrentStep:  opts.CurrentStep,
+		Status:       CardStatusWaiting,
 	}
 
 	m.cards = append(m.cards, card)
