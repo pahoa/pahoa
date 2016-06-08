@@ -5,7 +5,10 @@ board:
       to: "started"
       actions:
         - "StartCard"
-    - to: "waiting-code-review"
+    - from: "started"
+      to: "waiting-code-review"
+      actions:
+        - "CreateMergeRequestToDevelop"
     - to: "in-code-review"
     - to: "in-development-test"
     - to: "waiting-qa"
