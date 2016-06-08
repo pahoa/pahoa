@@ -1,0 +1,14 @@
+board:
+  transitions:
+    - to: "todo"
+    - from: "todo"
+      to: "started"
+      actions:
+        - "StartCard"
+    - to: "waiting-code-review"
+    - to: "in-code-review"
+    - to: "in-development-test"
+    - to: "waiting-qa"
+    - to: "in-qa"
+      limit: 1
+    - to: "delivered"
