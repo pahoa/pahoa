@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	ActionStartCard             = "StartCard"
-	ActionMergeRequestToDevelop = "MergeRequestToDevelop"
+	ActionStartCard                   = "StartCard"
+	ActionCreateMergeRequestToDevelop = "CreateMergeRequestToDevelop"
 )
 
 type Action string
