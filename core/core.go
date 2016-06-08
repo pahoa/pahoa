@@ -114,5 +114,7 @@ func (c *CardActionsRunner) Loop() {
 				break
 			}
 		}
+
+		card.Status = CardStatusOK
 	}
 }
