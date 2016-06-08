@@ -3,6 +3,8 @@ package core
 import (
 	"errors"
 	"log"
+
+	"github.com/pahoa/pahoa/actions"
 )
 
 var (
@@ -15,17 +17,17 @@ type Transition struct {
 }
 
 type Board struct {
-	transitions map[Transition][]Action
+	transitions map[Transition][]actions.Action
 }
 
 func NewBoard() *Board {
 	return &Board{
-		transitions: make(map[Transition][]Action),
+		transitions: make(map[Transition][]actions.Action),
 	}
 }
 
-func (b *Board) AddTransition(from, to string, actions ...Action) {
-	b.transitions[Transition{from, to}] = actions
+func (b *Board) AddTransition(from, to string, transitionActions ...actions.Action) {
+	b.transitions[Transition{from, to}] = transitionActions
 }
 
 func (b *Board) IsTransitionValid(from, to string) bool {
@@ -103,12 +105,12 @@ func (c *CardActionsRunner) Loop() {
 		to := card.CurrentStep
 
 		log.Printf("Moving from %s to %s", from, to)
-		actions := c.board.transitions[Transition{from, to}]
-		if actions == nil {
+		transitionActions := c.board.transitions[Transition{from, to}]
+		if transitionActions == nil {
 			continue
 		}
 
-		for _, action := range actions {
+		for _, action := range transitionActions {
 			action()
 		}
 	}

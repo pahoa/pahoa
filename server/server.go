@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/pahoa/pahoa/actions"
 	"github.com/pahoa/pahoa/core"
 )
 
@@ -24,7 +25,7 @@ func NewServer() *Server {
 	board.AddTransition("", "todo")
 	board.AddTransition("todo", "in-development")
 	board.AddTransition("in-development", "waiting-for-code-review",
-		core.CardAction(core.StatusMergeRequestToDevelop))
+		actions.MergeRequestToDevelop)
 
 	server := &Server{
 		mux:    serveMux,
