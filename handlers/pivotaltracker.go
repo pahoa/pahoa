@@ -37,6 +37,10 @@ func init() {
 	Register(core.ActionStartCard, PivotalTrackerStartCard)
 }
 
+const (
+	PivotalTrackerStoryStateStarted = "started"
+)
+
 type PivotalTrackerStory struct {
 	ID           int    `json:"id"`
 	ProjectID    int    `json:"project_id"`
@@ -67,10 +71,6 @@ func PivotalTrackerStoryDetail(token string, id string) (*PivotalTrackerStory, e
 
 	return &data, nil
 }
-
-const (
-	PivotalTrackerStoryStateStarted = "started"
-)
 
 type PivotalTrackerStoryUpdateOptions struct {
 	Token        string
