@@ -11,6 +11,13 @@ var (
 	InvalidCardMove = errors.New("Invalid card move")
 )
 
+const (
+	CardStatusWaiting    = "waiting"
+	CardStatusProcessing = "processing"
+	CardStatusOK         = "ok"
+	CardStatusFailed     = "failed"
+)
+
 type Transition struct {
 	From string
 	To   string
@@ -99,7 +106,7 @@ func (c *CardActionsRunner) Loop() {
 	for card := range c.cards {
 		log.Printf("Processing actions of card: %s", card.ExternalID)
 
-		card.Status = "waiting"
+		card.Status = CardStatusProcessing
 
 		from := card.PreviousStep
 		to := card.CurrentStep
