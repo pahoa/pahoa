@@ -104,9 +104,6 @@ func PivotalTrackerStoryUpdate(opts *PivotalTrackerStoryUpdateOptions) error {
 	client := &http.Client{}
 
 	res, err := client.Do(req)
-	if res != nil {
-		log.Printf("status code", res.StatusCode)
-	}
 	if err != nil || res.StatusCode != http.StatusOK {
 		log.Printf("err %#v", err)
 		return err
