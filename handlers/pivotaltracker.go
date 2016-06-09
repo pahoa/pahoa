@@ -59,8 +59,11 @@ func PivotalTrackerStoryDetail(token string, id string) (*PivotalTrackerStory, e
 	client := &http.Client{}
 
 	res, err := client.Do(req)
-	if err != nil || res.StatusCode != http.StatusOK {
+	if err != nil {
 		return nil, err
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Story id invalid or not found: %s", id)
 	}
 
 	var data PivotalTrackerStory
