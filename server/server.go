@@ -10,29 +10,27 @@ import (
 )
 
 type Server struct {
-	mux    *mux.Router
-	board  *core.Board
-	model  *core.Model
-	runner *core.CardActionsRunner
+	mux      *mux.Router
+	board    *core.Board
+	model    *core.Model
+	executor *core.Executor
 }
 
 type NewServerOptions struct {
-	Board  *core.Board
-	Model  *core.Model
-	Runner *core.CardActionsRunner
+	Board    *core.Board
+	Model    *core.Model
+	Executor *core.Executor
 }
 
 func NewServer(opts *NewServerOptions) *Server {
 	serveMux := mux.NewRouter()
 
 	server := &Server{
-		mux:    serveMux,
-		board:  opts.Board,
-		model:  opts.Model,
-		runner: opts.Runner,
+		mux:      serveMux,
+		board:    opts.Board,
+		model:    opts.Model,
+		executor: opts.Executor,
 	}
-
-	server.runner.Start()
 
 	// add card
 	serveMux.HandleFunc("/cards", server.addCardHandler).
@@ -58,7 +56,7 @@ func (s *Server) addCardHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	card, err := core.AddCard(s.board, s.model, s.runner, &options)
+	card, err := core.AddCard(s.board, s.model, s.executor, &options)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

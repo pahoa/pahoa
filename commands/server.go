@@ -57,17 +57,18 @@ func serverRun(cmd *cobra.Command, args []string) error {
 	}
 
 	model := &core.Model{}
-	runner := core.NewCardActionsRunner(&core.NewCardActionsRunnerOptions{
-		Board:    &board,
+
+	executor := core.NewExecutor(&core.NewExecutorOptions{
 		Model:    model,
 		Handlers: handlers.GetHandlers(),
 		Config:   config,
 	})
+	executor.Start()
 
 	s := server.NewServer(&server.NewServerOptions{
-		Board:  &board,
-		Model:  model,
-		Runner: runner,
+		Board:    &board,
+		Model:    model,
+		Executor: executor,
 	})
 
 	log.Printf("Starting server at: http://%s", serverOptions.address)

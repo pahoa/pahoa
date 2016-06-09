@@ -2,9 +2,6 @@ package core
 
 import (
 	"errors"
-	"log"
-
-	"github.com/spf13/viper"
 )
 
 var (
@@ -32,8 +29,9 @@ type AddCardOptions struct {
 	BypassActions bool   `json:"bypass_actions"`
 }
 
-func AddCard(b *Board, m *Model, r *CardActionsRunner, opts *AddCardOptions) (*Card, error) {
-	if !b.IsTransitionValid(opts.PreviousStep, opts.CurrentStep) {
+func AddCard(b *Board, m *Model, e *Executor, opts *AddCardOptions) (*Card, error) {
+	transition := b.GetTransition(opts.PreviousStep, opts.CurrentStep)
+	if transition == nil {
 		return nil, InvalidCardMove
 	}
 
@@ -46,75 +44,14 @@ func AddCard(b *Board, m *Model, r *CardActionsRunner, opts *AddCardOptions) (*C
 		return card, nil
 	}
 
-	r.Add(card)
+	e.Execute(&ExecutorTask{
+		Card:    card,
+		Actions: transition.Actions,
+	})
 
 	return card, nil
 }
 
 func ListCards(m *Model) []*Card {
 	return m.ListCards()
-}
-
-type CardActionsRunner struct {
-	board    *Board
-	model    *Model
-	handlers map[Action]ActionHandler
-	config   *viper.Viper
-	cards    chan *Card
-}
-
-type NewCardActionsRunnerOptions struct {
-	Board    *Board
-	Model    *Model
-	Handlers map[Action]ActionHandler
-	Config   *viper.Viper
-}
-
-func NewCardActionsRunner(opts *NewCardActionsRunnerOptions) *CardActionsRunner {
-	return &CardActionsRunner{
-		board:    opts.Board,
-		model:    opts.Model,
-		handlers: opts.Handlers,
-		config:   opts.Config,
-		cards:    make(chan *Card, 100),
-	}
-}
-
-func (c *CardActionsRunner) Start() {
-	go c.Loop()
-}
-
-func (c *CardActionsRunner) Add(card *Card) {
-	c.cards <- card
-}
-
-func (c *CardActionsRunner) Loop() {
-	for card := range c.cards {
-		log.Printf("Processing actions of card: %s", card.ExternalID)
-
-		card.Status = CardStatusProcessing
-
-		from := card.PreviousStep
-		to := card.CurrentStep
-
-		log.Printf("Moving from %s to %s", from, to)
-		transition := c.board.GetTransition(from, to)
-
-		for _, action := range transition.Actions {
-			handler := c.handlers[action]
-			if handler == nil {
-				log.Printf("Action [%s] has no handler", action)
-				card.Status = CardStatusFailed
-				break
-			}
-
-			if err := handler(c.config, card); err != nil {
-				log.Printf("Failed to execute action [%s]", action)
-				card.Status = CardStatusFailed
-				break
-			}
-		}
-
-		card.Status = CardStatusOK
-	}
 }
