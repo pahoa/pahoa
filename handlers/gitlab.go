@@ -9,7 +9,7 @@ import (
 )
 
 func GitlabCreateMergeRequestToDevelop(config *viper.Viper, card *core.Card) error {
-	log.Print("Gitlab - create merge request to develop - card: %s", card.ExternalID)
+	log.Print("Gitlab - create merge request to develop - card: %s", card.ID)
 	return nil
 }
 

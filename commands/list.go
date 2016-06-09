@@ -41,7 +41,7 @@ func listCmdRun(cmd *cobra.Command, args []string) error {
 	}
 
 	for _, card := range cards {
-		fmt.Printf("- Card: %s (%s) - Step: %s\n", card.ExternalID, card.Status,
+		fmt.Printf("- Card: %s (%s) - Step: %s\n", card.ID, card.Status,
 			card.CurrentStep)
 	}
 

@@ -23,10 +23,10 @@ func init() {
 	initClientCommand(addCmd)
 
 	addCmd.PersistentFlags().StringVar(
-		&addCardOptions.ExternalID,
-		"external-id",
+		&addCardOptions.ID,
+		"id",
 		"",
-		"external id")
+		"id")
 	addCmd.PersistentFlags().StringVar(
 		&addCardOptions.PreviousStep,
 		"previous-step",
@@ -67,7 +67,7 @@ func addCmdRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	log.Printf("Added Card: %s", card.ExternalID)
+	log.Printf("Added Card: %s", card.ID)
 
 	return nil
 }

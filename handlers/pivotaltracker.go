@@ -15,7 +15,7 @@ import (
 func PivotalTrackerStartCard(config *viper.Viper, card *core.Card) error {
 	token := config.GetString("pivotaltracker.token")
 
-	story, err := PivotalTrackerStoryDetail(token, card.ExternalID)
+	story, err := PivotalTrackerStoryDetail(token, card.ID)
 	if err != nil {
 		return err
 	}

@@ -8,7 +8,7 @@ type Model struct {
 
 func (m *Model) AddCard(opts *AddCardOptions) (*Card, error) {
 	for _, card := range m.cards {
-		if card.ExternalID != opts.ExternalID {
+		if card.ID != opts.ID {
 			continue
 		}
 
@@ -16,7 +16,7 @@ func (m *Model) AddCard(opts *AddCardOptions) (*Card, error) {
 	}
 
 	card := &Card{
-		ExternalID:   opts.ExternalID,
+		ID:           opts.ID,
 		PreviousStep: opts.PreviousStep,
 		CurrentStep:  opts.CurrentStep,
 		Status:       CardStatusWaiting,

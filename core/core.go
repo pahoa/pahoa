@@ -19,14 +19,14 @@ const (
 )
 
 type Card struct {
-	ExternalID   string `json:"external_id"`
+	ID           string `json:"id"`
 	PreviousStep string `json:"previous_step"`
 	CurrentStep  string `json:"current_step"`
 	Status       string `json:"status"`
 }
 
 type AddCardOptions struct {
-	ExternalID    string `json:"external_id"`
+	ID            string `json:"id"`
 	PreviousStep  string `json:"previous_step"`
 	CurrentStep   string `json:"current_step"`
 	BypassActions bool   `json:"bypass_actions"`
