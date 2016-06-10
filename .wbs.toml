@@ -1,6 +1,6 @@
 root_path = "."
 
-watch_target_dirs = ["server", "core"]
+watch_target_dirs = ["server", "core", "handlers"]
 watch_exclude_dirs = [".git"]
 watch_file_ext = [".go"]
 watch_file_exclude_pattern = []
