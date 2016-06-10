@@ -6,45 +6,55 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/spf13/viper"
 
 	"github.com/pahoa/pahoa/core"
 )
 
-func PivotalTrackerStartCard(config *viper.Viper, card *core.Card) error {
-	token := config.GetString("pivotaltracker.token")
+const (
+	PivotalTrackerStoryStateUnstarted = "unstarted"
+	PivotalTrackerStoryStateStarted   = "started"
+)
 
-	story, err := PivotalTrackerStoryDetail(token, card.ID)
+type PivotalTrackerStoryState string
+
+type PivotalTrackerStory struct {
+	ID           int                      `json:"id"`
+	ProjectID    int                      `json:"project_id"`
+	CurrentState PivotalTrackerStoryState `json:"current_state"`
+}
+
+func PivotalTrackerUnstartCard(config *viper.Viper, card *core.Card) error {
+	storyID, err := strconv.Atoi(card.ID)
 	if err != nil {
 		return err
 	}
 
-	err = PivotalTrackerStoryUpdate(&PivotalTrackerStoryUpdateOptions{
-		Token:        token,
-		StoryID:      story.ID,
-		ProjectID:    story.ProjectID,
+	return PivotalTrackerStoryUpdate(&PivotalTrackerStoryUpdateOptions{
+		Token:        config.GetString("pivotaltracker.token"),
+		StoryID:      storyID,
+		CurrentState: PivotalTrackerStoryStateUnstarted,
+	})
+}
+
+func PivotalTrackerStartCard(config *viper.Viper, card *core.Card) error {
+	storyID, err := strconv.Atoi(card.ID)
+	if err != nil {
+		return err
+	}
+
+	return PivotalTrackerStoryUpdate(&PivotalTrackerStoryUpdateOptions{
+		Token:        config.GetString("pivotaltracker.token"),
+		StoryID:      storyID,
 		CurrentState: PivotalTrackerStoryStateStarted,
 	})
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func init() {
 	Register(core.ActionStartCard, PivotalTrackerStartCard)
-}
-
-const (
-	PivotalTrackerStoryStateStarted = "started"
-)
-
-type PivotalTrackerStory struct {
-	ID           int    `json:"id"`
-	ProjectID    int    `json:"project_id"`
-	CurrentState string `json:"current_state"`
+	Register(core.ActionUnstartCard, PivotalTrackerUnstartCard)
 }
 
 func PivotalTrackerStoryDetail(token string, id string) (*PivotalTrackerStory, error) {
@@ -78,13 +88,12 @@ func PivotalTrackerStoryDetail(token string, id string) (*PivotalTrackerStory, e
 type PivotalTrackerStoryUpdateOptions struct {
 	Token        string
 	StoryID      int
-	ProjectID    int
-	CurrentState string
+	CurrentState PivotalTrackerStoryState
 }
 
 func PivotalTrackerStoryUpdate(opts *PivotalTrackerStoryUpdateOptions) error {
 	data, err := json.Marshal(struct {
-		CurrentState string `json:"current_state"`
+		CurrentState PivotalTrackerStoryState `json:"current_state"`
 	}{
 		CurrentState: opts.CurrentState,
 	})
@@ -92,7 +101,7 @@ func PivotalTrackerStoryUpdate(opts *PivotalTrackerStoryUpdateOptions) error {
 		return err
 	}
 
-	url := fmt.Sprintf("https://www.pivotaltracker.com/services/v5/projects/%d/stories/%d", opts.ProjectID, opts.StoryID)
+	url := fmt.Sprintf("https://www.pivotaltracker.com/services/v5/stories/%d", opts.StoryID)
 	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(data))
 	if err != nil {
 		return err

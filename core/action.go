@@ -6,6 +6,7 @@ import (
 
 const (
 	ActionStartCard                   = "StartCard"
+	ActionUnstartCard                 = "UnstartCard"
 	ActionCreateMergeRequestToDevelop = "CreateMergeRequestToDevelop"
 )
 

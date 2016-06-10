@@ -1,6 +1,8 @@
 board:
   transitions:
     - to: "todo"
+      actions:
+        - "UnstartCard"
     - from: "todo"
       to: "started"
       actions:
