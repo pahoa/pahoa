@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -113,8 +114,15 @@ func PivotalTrackerStoryUpdate(opts *PivotalTrackerStoryUpdateOptions) error {
 	client := &http.Client{}
 
 	res, err := client.Do(req)
-	if err != nil || res.StatusCode != http.StatusOK {
-		log.Printf("err %#v", err)
+	defer res.Body.Close()
+	if err != nil {
+		log.Printf("Pirvotal error %#v ", err)
+		return err
+	}
+
+	body, err := ioutil.ReadAll(res.Body)
+	if res.StatusCode != http.StatusOK {
+		log.Printf("Pirvotal error %#v ", string(body))
 		return err
 	}
 
