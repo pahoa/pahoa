@@ -120,8 +120,8 @@ func PivotalTrackerStoryUpdate(opts *PivotalTrackerStoryUpdateOptions) error {
 		return err
 	}
 
-	body, err := ioutil.ReadAll(res.Body)
 	if res.StatusCode != http.StatusOK {
+		body, err := ioutil.ReadAll(res.Body)
 		log.Printf("Pirvotal error %#v ", string(body))
 		return err
 	}
