@@ -17,3 +17,8 @@ board:
     - to: "in-qa"
       limit: 1
     - to: "delivered"
+
+gitlab:
+  token: ""
+  url: ""
+
