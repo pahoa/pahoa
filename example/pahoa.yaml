@@ -1,3 +1,5 @@
+pivotaltracker:
+  token: ""
 board:
   transitions:
     - to: "todo"
