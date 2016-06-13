@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -116,14 +117,18 @@ func PivotalTrackerStoryUpdate(opts *PivotalTrackerStoryUpdateOptions) error {
 	res, err := client.Do(req)
 	defer res.Body.Close()
 	if err != nil {
-		log.Printf("Pirvotal error %#v ", err)
+		log.Printf("PivotalTracker error %#v ", err)
 		return err
 	}
 
 	if res.StatusCode != http.StatusOK {
 		body, err := ioutil.ReadAll(res.Body)
-		log.Printf("Pirvotal error %#v ", string(body))
-		return err
+		if err != nil {
+			return err
+		}
+
+		log.Printf("PivotalTracker error %#v ", string(body))
+		return errors.New(string(body))
 	}
 
 	return nil

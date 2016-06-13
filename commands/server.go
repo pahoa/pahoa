@@ -8,6 +8,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	_ "github.com/mattes/migrate/driver/sqlite3"
+	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/pahoa/pahoa/core"
 	"github.com/pahoa/pahoa/handlers"
 	"github.com/pahoa/pahoa/server"
@@ -56,7 +59,10 @@ func serverRun(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("Failed to load board configuration")
 	}
 
-	model := &core.Model{}
+	model, err := core.NewSQLModel("sqlite3", "./pahoa.db", "./migrations")
+	if err != nil {
+		return fmt.Errorf("Failed to initialize model: %#v", err)
+	}
 
 	executor := core.NewExecutor(&core.NewExecutorOptions{
 		Model:    model,

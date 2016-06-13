@@ -12,13 +12,13 @@ import (
 type Server struct {
 	mux      *mux.Router
 	board    *core.Board
-	model    *core.Model
+	model    core.Model
 	executor *core.Executor
 }
 
 type NewServerOptions struct {
 	Board    *core.Board
-	Model    *core.Model
+	Model    core.Model
 	Executor *core.Executor
 }
 
@@ -73,7 +73,11 @@ func (s *Server) addCardHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) listCardsHandler(w http.ResponseWriter, r *http.Request) {
-	cards := s.model.ListCards()
+	cards, err := s.model.ListCards()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	if err := json.NewEncoder(w).Encode(cards); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
