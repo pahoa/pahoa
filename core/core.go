@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	InvalidCardMove = errors.New("Invalid card move")
+	ErrInvalidCardMove = errors.New("Invalid card move")
 )
 
 const (
@@ -32,7 +32,7 @@ type AddCardOptions struct {
 func AddCard(b *Board, m Model, e *Executor, opts *AddCardOptions) (*Card, error) {
 	transition := b.GetTransition(opts.PreviousStep, opts.CurrentStep)
 	if transition == nil {
-		return nil, InvalidCardMove
+		return nil, ErrInvalidCardMove
 	}
 
 	modelOptions := &ModelAddCardOptions{
