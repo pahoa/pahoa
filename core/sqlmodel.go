@@ -80,13 +80,27 @@ func (m *SQLModel) AddCard(opts *ModelAddCardOptions) (*Card, error) {
 	return m.GetCard(opts.ID)
 }
 
-func (m *SQLModel) ListCards() ([]*Card, error) {
-	log.Printf("ListCards()")
+func (m *SQLModel) ListCards(step string) ([]*Card, error) {
+	log.Printf("ListCards(%s)", step)
 
-	query := "select id, previous_step, current_step, status from card order by id"
-	rows, err := m.db.Query(query)
-	if err != nil {
-		return nil, err
+	var rows *sql.Rows
+	var err error
+	if step == "" {
+		query := "select id, previous_step, current_step, status from card order by id"
+		rows, err = m.db.Query(query)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		query := `
+			select id, previous_step, current_step, status 
+				from card where current_step = ? 
+				order by id
+			`
+		rows, err = m.db.Query(query, step)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	defer rows.Close()

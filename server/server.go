@@ -73,7 +73,7 @@ func (s *Server) addCardHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) listCardsHandler(w http.ResponseWriter, r *http.Request) {
-	cards, err := s.model.ListCards()
+	cards, err := s.model.ListCards("")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

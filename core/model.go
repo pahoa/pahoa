@@ -18,7 +18,7 @@ type ModelAddCardOptions struct {
 type Model interface {
 	GetCard(id string) (*Card, error)
 	AddCard(*ModelAddCardOptions) (*Card, error)
-	ListCards() ([]*Card, error)
+	ListCards(step string) ([]*Card, error)
 	UpdateCardStatus(id, status string) error
 	ClearActionLogs(id string) error
 	CreateActionLog(id string, action Action) error

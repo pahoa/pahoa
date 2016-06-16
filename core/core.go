@@ -63,5 +63,5 @@ func AddCard(b *Board, m Model, e *Executor, opts *AddCardOptions) (*Card, error
 }
 
 func ListCards(m Model) ([]*Card, error) {
-	return m.ListCards()
+	return m.ListCards("")
 }
