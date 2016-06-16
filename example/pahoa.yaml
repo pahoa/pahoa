@@ -1,6 +1,8 @@
 pivotaltracker:
   token: ""
 board:
+  limits:
+    in-qa: 1
   transitions:
     - to: "todo"
       actions:
@@ -16,8 +18,8 @@ board:
     - to: "in-code-review"
     - to: "in-development-test"
     - to: "waiting-qa"
-    - to: "in-qa"
-      limit: 1
+    - from: "waiting-qa"
+      to: "in-qa"
     - to: "delivered"
 
 gitlab:

@@ -5,7 +5,8 @@ import (
 )
 
 var (
-	ErrInvalidCardMove = errors.New("Invalid card move")
+	ErrInvalidCardMove     = errors.New("Invalid card move")
+	ErrWorkInProgressLimit = errors.New("Limit of work in progress cards for the given step has reached")
 )
 
 const (
@@ -33,6 +34,18 @@ func AddCard(b *Board, m Model, e *Executor, opts *AddCardOptions) (*Card, error
 	transition := b.GetTransition(opts.PreviousStep, opts.CurrentStep)
 	if transition == nil {
 		return nil, ErrInvalidCardMove
+	}
+
+	limit := b.GetLimit(opts.CurrentStep)
+	if limit > 0 {
+		// the following code is not concurrent-safe
+		cards, err := m.ListCards(opts.CurrentStep)
+		if err != nil {
+			return nil, err
+		}
+		if len(cards) >= limit {
+			return nil, ErrWorkInProgressLimit
+		}
 	}
 
 	modelOptions := &ModelAddCardOptions{
