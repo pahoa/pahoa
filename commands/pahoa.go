@@ -8,6 +8,7 @@ var pahoaCmd = &cobra.Command{Use: "pahoa"}
 
 func init() {
 	pahoaCmd.AddCommand(addCmd)
+	pahoaCmd.AddCommand(moveCmd)
 	pahoaCmd.AddCommand(listCmd)
 	pahoaCmd.AddCommand(serverCmd)
 }

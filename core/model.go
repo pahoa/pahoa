@@ -15,9 +15,17 @@ type ModelAddCardOptions struct {
 	Status       string
 }
 
+type ModelUpdateCardOptions struct {
+	ID           string
+	PreviousStep string
+	CurrentStep  string
+	Status       string
+}
+
 type Model interface {
 	GetCard(id string) (*Card, error)
 	AddCard(*ModelAddCardOptions) (*Card, error)
+	UpdateCard(*ModelUpdateCardOptions) (*Card, error)
 	ListCards(step string) ([]*Card, error)
 	UpdateCardStatus(id, status string) error
 	ClearActionLogs(id string) error

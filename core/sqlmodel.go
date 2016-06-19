@@ -72,7 +72,36 @@ func (m *SQLModel) AddCard(opts *ModelAddCardOptions) (*Card, error) {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(opts.ID, opts.PreviousStep, opts.CurrentStep, CardStatusWaiting)
+	_, err = stmt.Exec(opts.ID, opts.PreviousStep, opts.CurrentStep, opts.Status)
+	if err != nil {
+		return nil, err
+	}
+
+	return m.GetCard(opts.ID)
+}
+
+func (m *SQLModel) UpdateCard(opts *ModelUpdateCardOptions) (*Card, error) {
+	log.Printf("UpdateCard(%#v)", opts)
+
+	card, err := m.GetCard(opts.ID)
+	if err != nil {
+		return nil, err
+	}
+	if card == nil {
+		return nil, ErrCardNotFound
+	}
+
+	query := `
+		update card set previous_step = ?, current_step = ?, status = ? 
+			where id = ?
+		`
+	stmt, err := m.db.Prepare(query)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(opts.PreviousStep, opts.CurrentStep, opts.Status, opts.ID)
 	if err != nil {
 		return nil, err
 	}

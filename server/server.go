@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 
@@ -39,7 +40,7 @@ func NewServer(opts *NewServerOptions) *Server {
 	serveMux.HandleFunc("/cards", server.listCardsHandler).
 		Methods("GET")
 	// move card
-	serveMux.HandleFunc("/cards/{id}/step", server.updateCardStepHandler).
+	serveMux.HandleFunc("/cards/{id}/step/{to}", server.updateCardStepHandler).
 		Methods("POST")
 
 	return server
@@ -74,7 +75,7 @@ func (s *Server) addCardHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) listCardsHandler(w http.ResponseWriter, r *http.Request) {
 	step := r.URL.Query().Get("step")
-	cards, err := s.model.ListCards(step)
+	cards, err := core.ListCards(s.model, step)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -87,5 +88,30 @@ func (s *Server) listCardsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) updateCardStepHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
+	vars := mux.Vars(r)
+	bypass, err := strconv.ParseBool(r.URL.Query().Get("bypass-actions"))
+	if err != nil {
+		bypass = false
+	}
+
+	opts := &core.MoveCardOptions{
+		ID:            vars["id"],
+		To:            vars["to"],
+		BypassActions: bypass,
+	}
+
+	card, err := core.MoveCard(s.board, s.model, s.executor, opts)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	buf, err := json.Marshal(card)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(buf)
 }
