@@ -15,12 +15,32 @@ board:
       to: "waiting-code-review"
       actions:
         - "gitlab.CreateMergeRequestToDevelop"
-    - to: "in-code-review"
-    - to: "in-development-test"
-    - to: "waiting-qa"
+    - from: "waiting-code-review"
+      to: "in-code-review"
+    - from: "in-code-review"
+      to: "in-development-test"
+#      actions:
+#        - "gitlab.AcceptMergeRequestToDevelop"
+    - from: "in-development-test"
+      to: "waiting-qa"
+      actions:
+        - "pivotaltracker.FinishStory"
+#        - "gitlab.CreateMergeRequestToQA"
     - from: "waiting-qa"
       to: "in-qa"
-    - to: "delivered"
+      actions:
+        - "pivotaltracker.DeliveryStory"
+#        - "gitlab.AcceptMergeRequestToQA"
+    - from: "in-qa"
+      to: "done"
+      actions:
+        - "pivotaltracker.AcceptStory"
+#        - "git.MergeFromQAToMaster"
+    - from: "in-qa"
+      to: "todo"
+      actions:
+        - "pivotaltracker.RejectStory"
+#        - "git.RollbackQA"
 
 gitlab:
   token: ""
