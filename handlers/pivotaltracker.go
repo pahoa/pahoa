@@ -55,8 +55,8 @@ func PivotalTrackerStartCard(config *viper.Viper, card *core.Card) error {
 }
 
 func init() {
-	Register(core.ActionStartCard, PivotalTrackerStartCard)
-	Register(core.ActionUnstartCard, PivotalTrackerUnstartCard)
+	Register("pivotaltracker.StartStory", PivotalTrackerStartCard)
+	Register("pivotaltracker.UnstartStory", PivotalTrackerUnstartCard)
 }
 
 func PivotalTrackerStoryDetail(token string, id string) (*PivotalTrackerStory, error) {

@@ -5,12 +5,6 @@ import (
 )
 
 const (
-	ActionStartCard                   = "StartCard"
-	ActionUnstartCard                 = "UnstartCard"
-	ActionCreateMergeRequestToDevelop = "CreateMergeRequestToDevelop"
-)
-
-const (
 	ActionStatusWaiting    = "waiting"
 	ActionStatusProcessing = "processing"
 	ActionStatusOK         = "ok"

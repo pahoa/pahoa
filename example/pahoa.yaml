@@ -6,15 +6,15 @@ board:
   transitions:
     - to: "todo"
       actions:
-        - "UnstartCard"
+        - "pivotaltracker.UnstartStory"
     - from: "todo"
       to: "started"
       actions:
-        - "StartCard"
+        - "pivotaltracker.StartStory"
     - from: "started"
       to: "waiting-code-review"
       actions:
-        - "CreateMergeRequestToDevelop"
+        - "gitlab.CreateMergeRequestToDevelop"
     - to: "in-code-review"
     - to: "in-development-test"
     - to: "waiting-qa"

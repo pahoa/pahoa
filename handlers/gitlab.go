@@ -186,5 +186,5 @@ func listOpenedMergeRequests(git *gitlab.Client, pid *int) ([]*gitlab.MergeReque
 }
 
 func init() {
-	Register(core.ActionCreateMergeRequestToDevelop, GitlabCreateMergeRequestToDevelop)
+	Register("gitlab.CreateMergeRequestToDevelop", GitlabCreateMergeRequestToDevelop)
 }
