@@ -1,4 +1,4 @@
-package handlers
+package pivotaltracker
 
 import (
 	"bytes"
@@ -16,50 +16,45 @@ import (
 )
 
 const (
-	PivotalTrackerStoryStateUnstarted = "unstarted"
-	PivotalTrackerStoryStateStarted   = "started"
+	StoryStateUnstarted = "unstarted"
+	StoryStateStarted   = "started"
 )
 
-type PivotalTrackerStoryState string
+type StoryState string
 
-type PivotalTrackerStory struct {
-	ID           int                      `json:"id"`
-	ProjectID    int                      `json:"project_id"`
-	CurrentState PivotalTrackerStoryState `json:"current_state"`
+type Story struct {
+	ID           int        `json:"id"`
+	ProjectID    int        `json:"project_id"`
+	CurrentState StoryState `json:"current_state"`
 }
 
-func PivotalTrackerUnstartCard(config *viper.Viper, card *core.Card) error {
+func UnstartCard(config *viper.Viper, card *core.Card) error {
 	storyID, err := strconv.Atoi(card.ID)
 	if err != nil {
 		return err
 	}
 
-	return PivotalTrackerStoryUpdate(&PivotalTrackerStoryUpdateOptions{
+	return StoryUpdate(&StoryUpdateOptions{
 		Token:        config.GetString("pivotaltracker.token"),
 		StoryID:      storyID,
-		CurrentState: PivotalTrackerStoryStateUnstarted,
+		CurrentState: StoryStateUnstarted,
 	})
 }
 
-func PivotalTrackerStartCard(config *viper.Viper, card *core.Card) error {
+func StartCard(config *viper.Viper, card *core.Card) error {
 	storyID, err := strconv.Atoi(card.ID)
 	if err != nil {
 		return err
 	}
 
-	return PivotalTrackerStoryUpdate(&PivotalTrackerStoryUpdateOptions{
+	return StoryUpdate(&StoryUpdateOptions{
 		Token:        config.GetString("pivotaltracker.token"),
 		StoryID:      storyID,
-		CurrentState: PivotalTrackerStoryStateStarted,
+		CurrentState: StoryStateStarted,
 	})
 }
 
-func init() {
-	Register("pivotaltracker.StartStory", PivotalTrackerStartCard)
-	Register("pivotaltracker.UnstartStory", PivotalTrackerUnstartCard)
-}
-
-func PivotalTrackerStoryDetail(token string, id string) (*PivotalTrackerStory, error) {
+func StoryDetail(token string, id string) (*Story, error) {
 	url := "https://www.pivotaltracker.com/services/v5/stories/" + id
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -78,7 +73,7 @@ func PivotalTrackerStoryDetail(token string, id string) (*PivotalTrackerStory, e
 		return nil, fmt.Errorf("Story id invalid or not found: %s", id)
 	}
 
-	var data PivotalTrackerStory
+	var data Story
 
 	if err := json.NewDecoder(res.Body).Decode(&data); err != nil {
 		return nil, err
@@ -87,15 +82,15 @@ func PivotalTrackerStoryDetail(token string, id string) (*PivotalTrackerStory, e
 	return &data, nil
 }
 
-type PivotalTrackerStoryUpdateOptions struct {
+type StoryUpdateOptions struct {
 	Token        string
 	StoryID      int
-	CurrentState PivotalTrackerStoryState
+	CurrentState StoryState
 }
 
-func PivotalTrackerStoryUpdate(opts *PivotalTrackerStoryUpdateOptions) error {
+func StoryUpdate(opts *StoryUpdateOptions) error {
 	data, err := json.Marshal(struct {
-		CurrentState PivotalTrackerStoryState `json:"current_state"`
+		CurrentState StoryState `json:"current_state"`
 	}{
 		CurrentState: opts.CurrentState,
 	})
