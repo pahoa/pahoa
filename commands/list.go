@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/spf13/cobra"
 
 	"github.com/pahoa/pahoa/core"
 )
+
+var listCmdStep string
 
 var listCmd = &cobra.Command{
 	Use:  "list",
@@ -18,11 +21,17 @@ var listCmd = &cobra.Command{
 
 func init() {
 	initClientCommand(listCmd)
+
+	listCmd.PersistentFlags().StringVar(&listCmdStep, "step", "", "filter by step")
 }
 
 func listCmdRun(cmd *cobra.Command, args []string) error {
-	url := clientOptions.endpoint + "/cards"
-	res, err := http.Get(url)
+	qs := url.Values{}
+	qs.Set("step", listCmdStep)
+
+	u := fmt.Sprintf("%s/cards?%s", clientOptions.endpoint, qs.Encode())
+
+	res, err := http.Get(u)
 	if err != nil || res.StatusCode != 200 {
 		log.Fatal(err)
 	}
@@ -36,7 +45,7 @@ func listCmdRun(cmd *cobra.Command, args []string) error {
 	}
 
 	if len(cards) == 0 {
-		fmt.Println("Not found any cards")
+		fmt.Println("No cards found")
 		return nil
 	}
 
