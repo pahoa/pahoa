@@ -18,6 +18,10 @@ import (
 const (
 	StoryStateUnstarted = "unstarted"
 	StoryStateStarted   = "started"
+	StoryStateFinished  = "finished"
+	StoryStateDelivered = "delivered"
+	StoryStateAccepted  = "accepted"
+	StoryStateRejected  = "rejected"
 )
 
 type StoryState string
@@ -28,20 +32,31 @@ type Story struct {
 	CurrentState StoryState `json:"current_state"`
 }
 
-func UnstartCard(config *viper.Viper, card *core.Card) error {
-	storyID, err := strconv.Atoi(card.ID)
-	if err != nil {
-		return err
-	}
-
-	return StoryUpdate(&StoryUpdateOptions{
-		Token:        config.GetString("pivotaltracker.token"),
-		StoryID:      storyID,
-		CurrentState: StoryStateUnstarted,
-	})
+func UnstartStory(config *viper.Viper, card *core.Card) error {
+	return ChangeStoryState(config, card, StoryStateUnstarted)
 }
 
-func StartCard(config *viper.Viper, card *core.Card) error {
+func StartStory(config *viper.Viper, card *core.Card) error {
+	return ChangeStoryState(config, card, StoryStateStarted)
+}
+
+func FinishStory(config *viper.Viper, card *core.Card) error {
+	return ChangeStoryState(config, card, StoryStateFinished)
+}
+
+func DeliveryStory(config *viper.Viper, card *core.Card) error {
+	return ChangeStoryState(config, card, StoryStateDelivered)
+}
+
+func AcceptStory(config *viper.Viper, card *core.Card) error {
+	return ChangeStoryState(config, card, StoryStateAccepted)
+}
+
+func RejectStory(config *viper.Viper, card *core.Card) error {
+	return ChangeStoryState(config, card, StoryStateRejected)
+}
+
+func ChangeStoryState(config *viper.Viper, card *core.Card, state StoryState) error {
 	storyID, err := strconv.Atoi(card.ID)
 	if err != nil {
 		return err
@@ -50,7 +65,7 @@ func StartCard(config *viper.Viper, card *core.Card) error {
 	return StoryUpdate(&StoryUpdateOptions{
 		Token:        config.GetString("pivotaltracker.token"),
 		StoryID:      storyID,
-		CurrentState: StoryStateStarted,
+		CurrentState: state,
 	})
 }
 

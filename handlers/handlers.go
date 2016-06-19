@@ -20,6 +20,10 @@ func GetHandlers() map[core.Action]core.ActionHandler {
 }
 
 func init() {
-	Register("pivotaltracker.StartStory", pivotaltracker.StartCard)
-	Register("pivotaltracker.UnstartStory", pivotaltracker.UnstartCard)
+	Register("pivotaltracker.StartStory", pivotaltracker.StartStory)
+	Register("pivotaltracker.UnstartStory", pivotaltracker.UnstartStory)
+	Register("pivotaltracker.FinishStory", pivotaltracker.FinishStory)
+	Register("pivotaltracker.DeliveryStory", pivotaltracker.DeliveryStory)
+	Register("pivotaltracker.AcceptStory", pivotaltracker.AcceptStory)
+	Register("pivotaltracker.RejectStory", pivotaltracker.RejectStory)
 }
