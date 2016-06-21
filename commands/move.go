@@ -10,40 +10,44 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/pahoa/pahoa/core"
 )
 
-var (
-	moveCardID            string
-	moveCardTo            string
-	moveCardBypassActions bool
-)
+var moveCmdConfig = viper.New()
 
 var moveCmd = &cobra.Command{
-	Use:  "move",
-	RunE: moveCmdRun,
+	Use:     "move <id> <step>",
+	PreRunE: moveCmdPreRun,
+	RunE:    moveCmdRun,
 }
 
 func init() {
-	initClientCommand(moveCmd)
+	initClientConfig(moveCmdConfig, moveCmd)
 
 	pf := moveCmd.PersistentFlags()
 
-	pf.StringVar(&moveCardID, "id", "", "id")
-	pf.StringVar(&moveCardTo, "to", "", "to step")
-	pf.BoolVar(&moveCardBypassActions, "bypass-actions", false,
+	pf.Bool("bypass-actions", false,
 		"ignore actions that should be executed after transition")
+	moveCmdConfig.BindPFlag("bypass-actions", pf.Lookup("bypass-actions"))
+}
+
+func moveCmdPreRun(cmd *cobra.Command, args []string) error {
+	if len(args) != 2 {
+		return fmt.Errorf("<id> and <step> are required")
+	}
+
+	return nil
 }
 
 func moveCmdRun(cmd *cobra.Command, args []string) error {
 	qs := url.Values{}
-	qs.Set("bypass-actions", strconv.FormatBool(moveCardBypassActions))
+	qs.Set("bypass-actions", strconv.FormatBool(moveCmdConfig.GetBool("bypass-actions")))
 
-	u := fmt.Sprintf("%s/cards/%s/step/%s?%s", clientOptions.endpoint, moveCardID,
-		moveCardTo, qs.Encode())
+	u := fmt.Sprintf("%s/cards/%s/step/%s?%s", moveCmdConfig.GetString("endpoint"),
+		args[0], args[1], qs.Encode())
 
-	fmt.Printf("url", u)
 	res, err := http.Post(u, "application/json", nil)
 	if err != nil {
 		return err

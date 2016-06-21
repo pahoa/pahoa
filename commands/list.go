@@ -8,11 +8,12 @@ import (
 	"net/url"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/pahoa/pahoa/core"
 )
 
-var listCmdStep string
+var listCmdConfig = viper.New()
 
 var listCmd = &cobra.Command{
 	Use:  "list",
@@ -20,16 +21,18 @@ var listCmd = &cobra.Command{
 }
 
 func init() {
-	initClientCommand(listCmd)
+	initClientConfig(listCmdConfig, listCmd)
 
-	listCmd.PersistentFlags().StringVar(&listCmdStep, "step", "", "filter by step")
+	pf := listCmd.PersistentFlags()
+	pf.String("step", "", "filter by step")
+	listCmdConfig.BindPFlag("step", pf.Lookup("step"))
 }
 
 func listCmdRun(cmd *cobra.Command, args []string) error {
 	qs := url.Values{}
-	qs.Set("step", listCmdStep)
+	qs.Set("step", listCmdConfig.GetString("step"))
 
-	u := fmt.Sprintf("%s/cards?%s", clientOptions.endpoint, qs.Encode())
+	u := fmt.Sprintf("%s/cards?%s", listCmdConfig.GetString("endpoint"), qs.Encode())
 
 	res, err := http.Get(u)
 	if err != nil || res.StatusCode != 200 {
