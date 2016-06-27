@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -19,6 +20,30 @@ func init() {
 
 func Execute() error {
 	return pahoaCmd.Execute()
+}
+
+func initServerConfig(config *viper.Viper, cmd *cobra.Command) {
+	cmd.PersistentPreRunE = func(*cobra.Command, []string) error {
+		config.AutomaticEnv()
+		config.SetEnvPrefix("pahoa_server")
+
+		if serverCmdFile != "" {
+			config.SetConfigFile(serverCmdFile)
+		} else {
+			config.SetConfigName(".pahoa-server")
+			config.AddConfigPath("$HOME")
+			config.AddConfigPath(".")
+		}
+
+		err := config.ReadInConfig()
+		if err != nil && !os.IsNotExist(err) {
+			return fmt.Errorf("Failed to load configuration file: %#v", err)
+		}
+		if err == nil {
+			log.Printf("Loaded configuration file: %s", config.ConfigFileUsed())
+		}
+		return nil
+	}
 }
 
 func initClientConfig(config *viper.Viper, cmd *cobra.Command) {

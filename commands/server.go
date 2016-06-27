@@ -16,46 +16,30 @@ import (
 	"github.com/pahoa/pahoa/server"
 )
 
+var serverCmdConfig = viper.New()
+
 var serverCmd = &cobra.Command{
 	Use:  "server",
 	RunE: serverRun,
 }
 
-var serverOptions = struct {
-	cfgFile string
-	address string
-}{}
+var serverCmdFile string
 
 func init() {
-	serverCmd.PersistentFlags().StringVarP(
-		&serverOptions.cfgFile,
-		"config",
-		"c",
-		"./pahoa.yaml",
-		"path to config file")
-	serverCmd.PersistentFlags().StringVarP(
-		&serverOptions.address,
-		"bind",
-		"b",
-		"127.0.0.1:5544",
+	pf := serverCmd.PersistentFlags()
+
+	pf.StringVarP(&serverCmdFile, "config", "c", "./pahoa.yaml", "path to config file")
+	pf.StringP("bind", "b", "127.0.0.1:5544",
 		"interface and port to which the server will bind")
+
+	initServerConfig(serverCmdConfig, serverCmd)
+
+	serverCmdConfig.BindPFlag("bind", pf.Lookup("bind"))
 }
 
 func serverRun(cmd *cobra.Command, args []string) error {
-	config := viper.New()
-
-	config.AutomaticEnv()
-	config.SetEnvPrefix("pahoa")
-
-	config.SetConfigFile(serverOptions.cfgFile)
-
-	if err := config.ReadInConfig(); err != nil {
-		return fmt.Errorf("Failed to load configuration file: %s",
-			serverOptions.cfgFile)
-	}
-
 	var board core.Board
-	if err := config.UnmarshalKey("board", &board); err != nil {
+	if err := serverCmdConfig.UnmarshalKey("board", &board); err != nil {
 		return fmt.Errorf("Failed to load board configuration")
 	}
 
@@ -67,7 +51,7 @@ func serverRun(cmd *cobra.Command, args []string) error {
 	executor := core.NewExecutor(&core.NewExecutorOptions{
 		Model:    model,
 		Handlers: handlers.GetHandlers(),
-		Config:   config,
+		Config:   serverCmdConfig,
 	})
 	executor.Start()
 
@@ -77,6 +61,6 @@ func serverRun(cmd *cobra.Command, args []string) error {
 		Executor: executor,
 	})
 
-	log.Printf("Starting server at: http://%s", serverOptions.address)
-	return http.ListenAndServe(serverOptions.address, s)
+	log.Printf("Starting server at: http://%s", serverCmdConfig.GetString("bind"))
+	return http.ListenAndServe(serverCmdConfig.GetString("bind"), s)
 }

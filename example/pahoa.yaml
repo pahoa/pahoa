@@ -1,3 +1,5 @@
+bind: "0.0.0.0:8080"
+
 pivotaltracker:
   token: "e1192b9f6d76df35be47191f1165adb8"
 
