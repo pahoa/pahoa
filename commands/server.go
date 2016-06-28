@@ -23,18 +23,17 @@ var serverCmd = &cobra.Command{
 	RunE: serverRun,
 }
 
-var serverCmdFile string
-
 func init() {
 	pf := serverCmd.PersistentFlags()
 
-	pf.StringVarP(&serverCmdFile, "config", "c", "./pahoa.yaml", "path to config file")
+	pf.StringP("config", "c", "./pahoa.yaml", "path to config file")
+	serverCmdConfig.BindPFlag("config", pf.Lookup("config"))
+
 	pf.StringP("bind", "b", "127.0.0.1:5544",
 		"interface and port to which the server will bind")
+	serverCmdConfig.BindPFlag("bind", pf.Lookup("bind"))
 
 	initServerConfig(serverCmdConfig, serverCmd)
-
-	serverCmdConfig.BindPFlag("bind", pf.Lookup("bind"))
 }
 
 func serverRun(cmd *cobra.Command, args []string) error {

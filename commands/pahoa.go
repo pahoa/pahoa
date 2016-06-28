@@ -27,8 +27,8 @@ func initServerConfig(config *viper.Viper, cmd *cobra.Command) {
 		config.AutomaticEnv()
 		config.SetEnvPrefix("pahoa_server")
 
-		if serverCmdFile != "" {
-			config.SetConfigFile(serverCmdFile)
+		if config.GetString("config") != "" {
+			config.SetConfigFile(config.GetString("config"))
 		} else {
 			config.SetConfigName(".pahoa-server")
 			config.AddConfigPath("$HOME")
