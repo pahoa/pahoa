@@ -7,45 +7,81 @@ board:
   limits:
     in-qa: 1
   transitions:
-    - to: "todo"
+    - from: "" # initial transition
+      to: "todo"
+
+    # todo
     - from: "todo"
-      to: "started"
+      to: "doing"
       actions:
         - "pivotaltracker.StartStory"
-    - from: "started"
+
+    # doing 
+    - from: "doing"
       to: "todo"
       actions:
         - "pivotaltracker.UnstartStory"
-    - from: "started"
+    - from: "doing"
       to: "waiting-code-review"
       actions:
         - "gitlab.CreateMergeRequestToDevelop"
+
+    # waiting code review
     - from: "waiting-code-review"
       to: "in-code-review"
+    - from: "waiting-code-review"
+      to: "doing"
+      actions:
+        - "gitlab.CloseMergeRequestToDevelop"
+
+    # in code review
     - from: "in-code-review"
       to: "in-development-test"
-#      actions:
-#        - "gitlab.AcceptMergeRequestToDevelop"
+      actions:
+        - "gitlab.AcceptMergeRequestToDevelop"
+        - "jenkins.Build"
+    - from: "in-code-review"
+      to: "doing"
+      actions:
+        - "gitlab.CloseMergeRequestToDevelop"
+
+    # in development test
     - from: "in-development-test"
       to: "waiting-qa"
       actions:
         - "pivotaltracker.FinishStory"
-#        - "gitlab.CreateMergeRequestToQA"
+        - "gitlab.CreateMergeRequestToQA"
+    - from: "in-development-test"
+      to: "doing"
+      actions:
+        - "gitlab.CloseMergeRequestToDevelop"
+
+    # waiting qa 
     - from: "waiting-qa"
       to: "in-qa"
       actions:
         - "pivotaltracker.DeliveryStory"
-#        - "gitlab.AcceptMergeRequestToQA"
+        - "gitlab.AcceptMergeRequestToQA"
+        - "jenkins.Build"
+    - from: "waiting-qa"
+      to: "doing"
+      actions:
+        - "gitlab.CloseMergeRequestToQA"
+
+    # in qa
     - from: "in-qa"
       to: "done"
       actions:
         - "pivotaltracker.AcceptStory"
-#        - "git.MergeFromQAToMaster"
+        - "gitlab.CreateAndAcceptMergeRequestToMaster"
+        - "jenkins.Build"
+        - "gitlab.RemoveBranches"
     - from: "in-qa"
       to: "todo"
       actions:
         - "pivotaltracker.RejectStory"
-#        - "git.RollbackQA"
+        - "gitlab.RevertMergeRequestToQA"
+        - "jenkins.Build"
 
 gitlab:
   token: ""

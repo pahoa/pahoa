@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"github.com/pahoa/pahoa/core"
+	"github.com/pahoa/pahoa/handlers/gitlab"
+	"github.com/pahoa/pahoa/handlers/jenkins"
 	"github.com/pahoa/pahoa/handlers/pivotaltracker"
 )
 
@@ -26,4 +28,17 @@ func init() {
 	Register("pivotaltracker.DeliveryStory", pivotaltracker.DeliveryStory)
 	Register("pivotaltracker.AcceptStory", pivotaltracker.AcceptStory)
 	Register("pivotaltracker.RejectStory", pivotaltracker.RejectStory)
+
+	Register("gitlab.CreateMergeRequestToDevelop", gitlab.CreateMergeRequestToDevelop)
+	Register("gitlab.AcceptMergeRequestToDevelop", gitlab.AcceptMergeRequestToDevelop)
+	Register("gitlab.CloseMergeRequestToDevelop", gitlab.CloseMergeRequestToDevelop)
+	Register("gitlab.CreateMergeRequestToQA", gitlab.CreateMergeRequestToQA)
+	Register("gitlab.AcceptMergeRequestToQA", gitlab.AcceptMergeRequestToQA)
+	Register("gitlab.CloseMergeRequestToQA", gitlab.CloseMergeRequestToQA)
+	Register("gitlab.CreateAndAcceptMergeRequestToMaster",
+		gitlab.CreateAndAcceptMergeRequestToMaster)
+	Register("gitlab.RemoveBranches", gitlab.RemoveBranches)
+	Register("gitlab.RevertMergeRequestToQA", gitlab.RevertMergeRequestToQA)
+
+	Register("jenkins.Build", jenkins.Build)
 }
